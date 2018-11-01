@@ -39,7 +39,7 @@ def diffusion_spherical_FV(c, t, r, D, j0):
 
     j = current(t, j0)
     q = - D*r[1:-1] ** 2. * (c[1:] - c[0:-1]) / dr
-    q_surf = -j
+    q_surf = -j*R**2
     q = np.append(0, q)
     q = np.append(q, q_surf)
 
@@ -48,7 +48,7 @@ def diffusion_spherical_FV(c, t, r, D, j0):
     return dcdt_out
 
 
-def spherical_solver(j, r, t, params):
+def spherical_solver(r, t, params):
     R, c_max, c0, j0, D = params
     return odeint(diffusion_spherical_FV, c0*np.ones(np.size(r) - 1), t, args=(r, D, j0))
 
@@ -69,7 +69,7 @@ c0 = 9500
 j0 = 9.5*10**(-6)
 D = 10**(-14)
 
-c = spherical_solver(current, r, t, [R, c_max, c0, j0, D])
+c = spherical_solver(r, t, [R, c_max, c0, j0, D])
 
 for i in range(1, np.size(t)):
     plt.clf()
