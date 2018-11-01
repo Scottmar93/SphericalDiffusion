@@ -2,6 +2,7 @@ from scipy.integrate import odeint
 import numpy as np
 import matplotlib.pyplot as plt
 
+#### Note that c exceeds c_max
 
 def current(t, j0):
     """Calculate the input current.
@@ -20,11 +21,11 @@ def current(t, j0):
 
     """
     if t < 1800:
-        j = j0*t
+        j = j0
     elif t < 5400:
         j = 0
     else:
-        j = -j0*t
+        j = -j0
 
     return j
 
@@ -59,6 +60,8 @@ def diffusion_spherical_FV(c, t, r, D, j0):
 
     # Evaluate j
     j = current(t, j0)
+
+    # Set maximum concentration
 
     # Compute fluxes
     q = - D*r[1:-1] ** 2. * (c[1:] - c[0:-1]) / dr
@@ -125,6 +128,10 @@ c = spherical_solver(r, t, [R, c_max, c0, j0, D])
 # Plot at each timestep
 for i in range(1, np.size(t)):
     plt.clf()
-    plt.plot(r[:-1], c[i, :])
-    plt.pause(0.1)
+    plt.plot(r[:-1]/R, c[i, :]/c_max)
+    plt.ylim([0.5, 1.5])
+    plt.xlabel('r/R')
+    plt.ylabel('c/c_max')
+    plt.title('Time = {} seconds'.format(t[i]))
+    plt.pause(1)
 
