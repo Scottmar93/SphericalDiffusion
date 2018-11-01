@@ -3,48 +3,41 @@ from numpy import *
 import matplotlib.pyplot as plt
 
 
-def diffusion_equation(t, c, d, g):
-
-    n = c.size
-    dx = 1/(n-1)
-
-    # Create finite difference matrix
-    a = diag(ones(n - 1), 1) - diag(2 * ones(n)) + diag(ones(n - 1), -1)
-    a[0, 0] = -1
-    a[n - 1, n - 1] = -1
-
-    # create b
-    b = zeros(n)
-    b[n - 1] = g * c[n-1]
-
-    return (d/pow(dx, 2)) * a.dot(c) + b/dx
+###################
+# this is for a constant current application:
 
 
-# Parameters
-pts = 50
-flux = -10
-diff = 10
+def dcdt(c, t, r, D, current):
+    """
+    This function finds the dcdt. It takes as inputs the parameters a time and parameters
+    :param u:
+    :param t:
+    :param grid:
+    :param D:
+    :param current:
+    :return:
+    """
+    dr = r[1]-r[0]
 
-# Grid and initial conditions
-x = linspace(0, 1, pts)
-c0 = 0.9 * ones(pts)
+    q = - D r[1:-1] ** 2. * (c[:, 1:] - c[:, 0:-1]) / dr
+    q_surf = -current
+    q = np.concatenate([0], q, q_surf)
 
-# Interactive plotting on
-plt.ion()
+    dcdt_out = - (2. / (r[1:] + r[0:-1])) ** 2. \
+             * (qn[:, 1:] - qn[:, 0:-1]) / dr
+    return dcdt_out
 
-# Initialise ODE solver
-t0 = 0
-r = ode(diffusion_equation)
-r.set_initial_value(c0, t0).set_f_params(diff, flux)
-t1 = 10
-dt = 0.001
-while r.successful() and r.t < t1:
-    r.integrate(r.t+dt)
-    plt.clf()
-    plt.ylim([0, 2])
-    plt.plot(x, r.y, color='red')
-    plt.xlabel('Distance')
-    plt.ylabel('Concentration')
-    plt.title('Profile at t=%g' % r.t)
-    plt.pause(0.01)
+
+# Set up grid
+r = np.linspace(0, 1, 100)  # neg, sep, pos, particle, grid
+
+# Initial conditions
+c0 = ones(size(r))  # neg, pos, electrolyte, grid
+
+# Solve ODEs
+t = np.linspace(0, tmax, tsteps)
+c = odeint(dcdt, c0, t, args=(r, D, current))
+
+
+################
 
