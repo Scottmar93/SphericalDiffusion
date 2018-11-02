@@ -1,2 +1,1 @@
-from .sphericalSolver import *
-from .simpleDiffusion import *
+# from .simpleDiffusion import *

@@ -1,6 +1,6 @@
 import numpy as np
 
-def current(t, j0):
+def current(t, j0, current_type='step'):
     """Calculate the input current.
 
     Parameters
@@ -9,6 +9,8 @@ def current(t, j0):
         Times at which input current is to be calculated.
     j0 : int or float
         Size of the current.
+    current_type : string, optional
+        Type of current wanted (step or constant)
 
     Returns
     -------
@@ -16,5 +18,14 @@ def current(t, j0):
         The input current.
 
     """
-    # Return a np array with the same shape as t
-    return j0*np.ones_like(t)
+    if current_type == 'step':
+        if t < 1800:
+            j = j0
+        elif t < 5400:
+            j = 0
+        else:
+            j = -j0
+
+        return j
+    elif current_type == 'constant':
+        return j0
